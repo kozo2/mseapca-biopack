@@ -9,5 +9,5 @@ Description: Computing metabolite set enrichment analysis (MSEA) (Yamamoto, H. e
 License: LGPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: XML
 Depends: loadings
+RoxygenNote: 7.3.2

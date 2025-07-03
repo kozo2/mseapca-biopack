@@ -1,0 +1,1573 @@
+
+R version 4.5.1 (2025-06-13) -- "Great Square Root"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> pkgname <- "mseapca"
+> source(file.path(R.home("share"), "R", "examples-header.R"))
+> options(warn = 1)
+> library('mseapca')
+Loading required package: loadings
+> 
+> base::assign(".oldSearch", base::search(), pos = 'CheckExEnv')
+> base::assign(".old_wd", base::getwd(), pos = 'CheckExEnv')
+> cleanEx()
+> nameEx("MetaboAnalyst")
+> ### * MetaboAnalyst
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: MetaboAnalyst
+> ### Title: Example metabolomics data extracted from MetaboAnalyst (fasting
+> ###   study)
+> ### Aliases: MetaboAnalyst
+> ### Keywords: datasets metabolomics
+> 
+> ### ** Examples
+> 
+> ## Load data
+> data(MetaboAnalyst)
+> 
+> SIG <- MetaboAnalyst$fasting$data$SIG
+> DET <- MetaboAnalyst$fasting$data$DET
+> M   <- MetaboAnalyst$fasting$pathway
+> 
+> ## Simple ORA on detected metabolites
+> res <- ora_det(SIG, DET, M)
+> head(res$`Result of MSEA(ORA)`)
+                                        p.value q.value
+Glycine and Serine Metabolism         0.2350242       1
+Pterine Biosynthesis                  0.9320866       1
+Tyrosine Metabolism                   0.5401519       1
+Beta-Alanine Metabolism               0.9981135       1
+Phenylalanine and Tyrosine Metabolism 0.7782319       1
+Ammonia Recycling                     0.9971702       1
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("msea_ora")
+> ### * msea_ora
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: msea_ora
+> ### Title: Wrapper for several over-representation analysis (ORA) flavours
+> ### Aliases: msea_ora
+> ### Keywords: MSEA ORA enrichment
+> 
+> ### ** Examples
+> 
+> ## Toy data ----------------------------------------------------
+> M   <- list(set1 = c("A","B","C"),
++             set2 = c("C","D","E"))
+> DET <- c("A","B","C","D")
+> SIG <- c("A","C")
+> 
+> ## Plain ORA with detected metabolites
+> msea_ora(SIG, DET, M, option = "det")
+$`Result of MSEA(ORA)`
+       p.value   q.value
+set1 0.5000000 0.8333333
+set2 0.8333333 0.8333333
+
+$`significant metabolites`
+$`significant metabolites`$set1
+[1] "A" "C"
+
+$`significant metabolites`$set2
+[1] "C"
+
+
+$TAB
+$TAB[[1]]
+     [,1] [,2]
+[1,]    2    1
+[2,]    0    1
+
+$TAB[[2]]
+     [,1] [,2]
+[1,]    1    1
+[2,]    1    1
+
+
+> 
+> ## ORA with shrinkage adjustment
+> msea_ora(SIG, DET, M, option = "est_shrink", lambda = 5)
+[1] 1
+     [,1] [,2]
+[1,]    2    0
+[2,]    1    2
+[1] 2
+     [,1] [,2]
+[1,]    2    0
+[2,]    2    0
+$`Result of MSEA (ORA with adjustment)`
+     p.value q.value
+set1     0.3     0.6
+set2     1.0     1.0
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("msea_ora_range")
+> ### * msea_ora_range
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: msea_ora_range
+> ### Title: Wrapper function for Over-Representation Analysis with p-value
+> ###   range estimation
+> ### Aliases: msea_ora_range
+> ### Keywords: MSEA ORA enrichment
+> 
+> ### ** Examples
+> 
+> ## Example
+> M <- list(
++   set1 = c("A", "B", "C"),
++   set2 = c("C", "D", "E", "F"),
++   set3 = c("G", "H")
++ )
+> DET <- c("A", "B", "C", "D", "E")  # Detected
+> SIG <- c("A", "C")                # Significant
+> 
+> msea_ora_range(SIG, DET, M, option = "bino_naive")
+$`Range of p-values for each pathway (95% confidence interval)`
+     lower p-value p-value(median) upper p-value
+set1     0.2857143       0.2857143     0.2857143
+set2     0.5000000       0.9285714     0.9285714
+set3     0.1071429       0.6428571     1.0000000
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ora_all")
+> ### * ora_all
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ora_all
+> ### Title: ORA using all metabolites in the pathway
+> ### Aliases: ora_all
+> ### Keywords: htest
+> 
+> ### ** Examples
+> 
+> # Example1 : Metabolome data
+> data(MetaboAnalyst)
+> 
+> # Use pre-computed significant metabolites
+> SIG <- MetaboAnalyst$fasting$data$SIG
+> 
+> # metabolite set list
+> M <- MetaboAnalyst$fasting$pathway
+> 
+> # MSEA by over representation analysis
+> B <- ora_all(SIG, M)
+> B$`Result of MSEA(ORA)`
+                                                                        p.value
+Glycine and Serine Metabolism                                      1.531026e-04
+Pterine Biosynthesis                                               7.925920e-01
+Tyrosine Metabolism                                                3.233664e-01
+Beta-Alanine Metabolism                                            8.528350e-01
+Phenylalanine and Tyrosine Metabolism                              4.332175e-01
+Ammonia Recycling                                                  8.252435e-01
+Nucleotide Sugars Metabolism                                       2.936465e-01
+Inositol Metabolism                                                8.149637e-01
+Catecholamine Biosynthesis                                         8.806576e-02
+Cysteine Metabolism                                                1.605239e-01
+Glutathione Metabolism                                             1.917081e-02
+Propanoate Metabolism                                              9.071835e-01
+Vitamin B6 Metabolism                                              1.000000e+00
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  1.000000e+00
+Arginine and Proline Metabolism                                    1.186532e-03
+Taurine and Hypotaurine Metabolism                                 1.331686e-01
+Steroid Biosynthesis                                               9.344820e-01
+Porphyrin Metabolism                                               8.958090e-01
+Phospholipid Biosynthesis                                          4.706199e-01
+Pantothenate and CoA Biosynthesis                                  9.895191e-02
+Caffeine Metabolism                                                3.547347e-01
+Selenoamino Acid Metabolism                                        7.804313e-01
+Oxidation of Branched Chain Fatty Acids                            4.651983e-02
+Pentose Phosphate Pathway                                          1.661291e-02
+Valine, Leucine and Isoleucine Degradation                         6.300930e-01
+Methionine Metabolism                                              1.192567e-03
+Sphingolipid Metabolism                                            6.482263e-01
+Bile Acid Biosynthesis                                             9.758786e-01
+D-Arginine and D-Ornithine Metabolism                              4.580253e-01
+Lysine Degradation                                                 8.149637e-01
+Glycerolipid Metabolism                                            1.473695e-01
+Glycolysis                                                         1.106960e-05
+Sulfate/Sulfite Metabolism                                         1.000000e+00
+Galactose Metabolism                                               3.365211e-01
+Histidine Metabolism                                               9.071835e-01
+Amino Sugar Metabolism                                             6.624721e-03
+Pyrimidine Metabolism                                              8.277956e-01
+Nicotinate and Nicotinamide Metabolism                             5.737080e-01
+Purine Metabolism                                                  9.176364e-01
+Fatty acid Metabolism                                              9.124044e-01
+Beta Oxidation of Very Long Chain Fatty Acids                      2.320195e-01
+Folate Metabolism                                                  1.000000e+00
+Fatty Acid Elongation In Mitochondria                              8.610446e-01
+Alanine Metabolism                                                 2.320195e-01
+Citric Acid Cycle                                                  1.623321e-04
+Starch and Sucrose Metabolism                                      8.027205e-02
+Urea Cycle                                                         4.380037e-04
+Pyruvate Metabolism                                                1.041065e-02
+Tryptophan Metabolism                                              2.067514e-01
+Fructose and Mannose Degradation                                   8.027205e-02
+Ubiquinone Biosynthesis                                            6.733686e-01
+Biotin Metabolism                                                  1.000000e+00
+Aspartate Metabolism                                               2.907678e-01
+Androgen and Estrogen Metabolism                                   8.441499e-01
+Riboflavin Metabolism                                              1.000000e+00
+Ketone Body Metabolism                                             1.521409e-01
+Glutamate Metabolism                                               1.199657e-04
+Butyrate Metabolism                                                2.730884e-01
+Retinol Metabolism                                                 5.737080e-01
+Arachidonic Acid Metabolism                                        9.785802e-01
+Thiamine Metabolism                                                3.938620e-01
+Betaine Metabolism                                                 3.141407e-01
+Glycerol Phosphate Shuttle                                         1.148131e-01
+Phenylacetate Metabolism                                           3.938620e-01
+Glucose-Alanine Cycle                                              1.521409e-01
+Gluconeogenesis                                                    3.179489e-06
+Malate-Aspartate Shuttle                                           4.268242e-01
+Steroidogenesis                                                    1.000000e+00
+Mitochondrial Electron Transport Chain                             1.596631e-02
+Lactose Synthesis                                                  2.730884e-01
+Spermidine and Spermine Biosynthesis                               1.312317e-02
+Ethanol Degradation                                                6.543825e-01
+Phytanic Acid Peroxisomal Oxidation                                4.651983e-02
+Threonine and 2-Oxobutanoate Degradation                           6.733686e-01
+Homocysteine Degradation                                           8.047570e-02
+Fatty Acid Biosynthesis                                            8.610446e-01
+Lactose Degradation                                                1.000000e+00
+Pyruvaldehyde Degradation                                          1.356947e-02
+Inositol Phosphate Metabolism                                      7.395952e-01
+Phosphatidylinositol Phosphate Metabolism                          1.000000e+00
+Vitamin K Metabolism                                               1.000000e+00
+Carnitine Synthesis                                                2.671049e-02
+Transfer of Acetyl Groups into Mitochondria                        2.671049e-02
+Trehalose Degradation                                              1.000000e+00
+Degradation of Superoxides                                         1.000000e+00
+Plasmalogen Synthesis                                              4.140184e-01
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  7.804313e-01
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 7.804313e-01
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   7.925920e-01
+Warburg Effect                                                     5.369063e-08
+Methylhistidine Metabolism                                         1.990342e-01
+Thyroid hormone synthesis                                          1.000000e+00
+Phosphatidylcholine Biosynthesis                                   1.716136e-01
+De Novo Triacylglycerol Biosynthesis                               8.047570e-02
+Cardiolipin Biosynthesis                                           1.148131e-01
+Phosphatidylethanolamine Biosynthesis                              1.000000e+00
+Androstenedione Metabolism                                         7.395952e-01
+Estrone Metabolism                                                 3.747469e-01
+                                                                        q.value
+Glycine and Serine Metabolism                                      2.651424e-03
+Pterine Biosynthesis                                               1.000000e+00
+Tyrosine Metabolism                                                7.202251e-01
+Beta-Alanine Metabolism                                            1.000000e+00
+Phenylalanine and Tyrosine Metabolism                              8.164484e-01
+Ammonia Recycling                                                  1.000000e+00
+Nucleotide Sugars Metabolism                                       6.851752e-01
+Inositol Metabolism                                                1.000000e+00
+Catecholamine Biosynthesis                                         3.452178e-01
+Cysteine Metabolism                                                4.767072e-01
+Glutathione Metabolism                                             1.174212e-01
+Propanoate Metabolism                                              1.000000e+00
+Vitamin B6 Metabolism                                              1.000000e+00
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  1.000000e+00
+Arginine and Proline Metabolism                                    1.298573e-02
+Taurine and Hypotaurine Metabolism                                 4.500179e-01
+Steroid Biosynthesis                                               1.000000e+00
+Porphyrin Metabolism                                               1.000000e+00
+Phospholipid Biosynthesis                                          8.540880e-01
+Pantothenate and CoA Biosynthesis                                  3.729726e-01
+Caffeine Metabolism                                                7.557392e-01
+Selenoamino Acid Metabolism                                        1.000000e+00
+Oxidation of Branched Chain Fatty Acids                            2.279472e-01
+Pentose Phosphate Pathway                                          1.085377e-01
+Valine, Leucine and Isoleucine Degradation                         1.000000e+00
+Methionine Metabolism                                              1.298573e-02
+Sphingolipid Metabolism                                            1.000000e+00
+Bile Acid Biosynthesis                                             1.000000e+00
+D-Arginine and D-Ornithine Metabolism                              8.469146e-01
+Lysine Degradation                                                 1.000000e+00
+Glycerolipid Metabolism                                            4.659315e-01
+Glycolysis                                                         3.616068e-04
+Sulfate/Sulfite Metabolism                                         1.000000e+00
+Galactose Metabolism                                               7.328682e-01
+Histidine Metabolism                                               1.000000e+00
+Amino Sugar Metabolism                                             6.492227e-02
+Pyrimidine Metabolism                                              1.000000e+00
+Nicotinate and Nicotinamide Metabolism                             1.000000e+00
+Purine Metabolism                                                  1.000000e+00
+Fatty acid Metabolism                                              1.000000e+00
+Beta Oxidation of Very Long Chain Fatty Acids                      5.983661e-01
+Folate Metabolism                                                  1.000000e+00
+Fatty Acid Elongation In Mitochondria                              1.000000e+00
+Alanine Metabolism                                                 5.983661e-01
+Citric Acid Cycle                                                  2.651424e-03
+Starch and Sucrose Metabolism                                      3.286091e-01
+Urea Cycle                                                         6.132051e-03
+Pyruvate Metabolism                                                9.274941e-02
+Tryptophan Metabolism                                              5.628232e-01
+Fructose and Mannose Degradation                                   3.286091e-01
+Ubiquinone Biosynthesis                                            1.000000e+00
+Biotin Metabolism                                                  1.000000e+00
+Aspartate Metabolism                                               6.851752e-01
+Androgen and Estrogen Metabolism                                   1.000000e+00
+Riboflavin Metabolism                                              1.000000e+00
+Ketone Body Metabolism                                             4.659315e-01
+Glutamate Metabolism                                               2.651424e-03
+Butyrate Metabolism                                                6.690667e-01
+Retinol Metabolism                                                 1.000000e+00
+Arachidonic Acid Metabolism                                        1.000000e+00
+Thiamine Metabolism                                                7.877239e-01
+Betaine Metabolism                                                 7.159485e-01
+Glycerol Phosphate Shuttle                                         4.018459e-01
+Phenylacetate Metabolism                                           7.877239e-01
+Glucose-Alanine Cycle                                              4.659315e-01
+Gluconeogenesis                                                    1.557950e-04
+Malate-Aspartate Shuttle                                           8.164484e-01
+Steroidogenesis                                                    1.000000e+00
+Mitochondrial Electron Transport Chain                             1.085377e-01
+Lactose Synthesis                                                  6.690667e-01
+Spermidine and Spermine Biosynthesis                               1.022929e-01
+Ethanol Degradation                                                1.000000e+00
+Phytanic Acid Peroxisomal Oxidation                                2.279472e-01
+Threonine and 2-Oxobutanoate Degradation                           1.000000e+00
+Homocysteine Degradation                                           3.286091e-01
+Fatty Acid Biosynthesis                                            1.000000e+00
+Lactose Degradation                                                1.000000e+00
+Pyruvaldehyde Degradation                                          1.022929e-01
+Inositol Phosphate Metabolism                                      1.000000e+00
+Phosphatidylinositol Phosphate Metabolism                          1.000000e+00
+Vitamin K Metabolism                                               1.000000e+00
+Carnitine Synthesis                                                1.454238e-01
+Transfer of Acetyl Groups into Mitochondria                        1.454238e-01
+Trehalose Degradation                                              1.000000e+00
+Degradation of Superoxides                                         1.000000e+00
+Plasmalogen Synthesis                                              8.114761e-01
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  1.000000e+00
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 1.000000e+00
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   1.000000e+00
+Warburg Effect                                                     5.261681e-06
+Methylhistidine Metabolism                                         5.572958e-01
+Thyroid hormone synthesis                                          1.000000e+00
+Phosphatidylcholine Biosynthesis                                   4.946510e-01
+De Novo Triacylglycerol Biosynthesis                               3.286091e-01
+Cardiolipin Biosynthesis                                           4.018459e-01
+Phosphatidylethanolamine Biosynthesis                              1.000000e+00
+Androstenedione Metabolism                                         1.000000e+00
+Estrone Metabolism                                                 7.813871e-01
+> 
+> ## Example2 : Proteome data (commented out - data not available)
+> # data(covid19)
+> # data(pathway)
+> # 
+> # X <- covid19$X$proteomics
+> # Y <- covid19$Y
+> # D <- covid19$D
+> # tau <- covid19$tau
+> # 
+> # protein_name <- colnames(X)
+> # 
+> # # pls-rog and pls-rog loading
+> # plsrog <- pls_rog(X,Y,D)
+> # plsrog <- plsrog_loading(plsrog)
+> # 
+> # # statistically significant proteins
+> # index_prot <- which(plsrog$loading$R[,1]>0 & plsrog$loading$p.value[,1]<0.05)
+> # sig_prot <- protein_name[index_prot]
+> # 
+> # # protein set list
+> # M <- pathway$covid19$proteomics
+> # 
+> # # MSEA by over representation analysis
+> # B <- ora_all(sig_prot, M)
+> # B$`Result of MSEA(ORA)`
+> 
+> # Example3: Metabolome data
+> data(MetaboAnalyst)
+> 
+> SIG <- MetaboAnalyst$fasting$data$SIG
+> M <- MetaboAnalyst$fasting$pathway
+> 
+> # Perform ORA using detected metabolites only
+> B <- ora_all(SIG, M)
+> B$`Result of MSEA(ORA)`
+                                                                        p.value
+Glycine and Serine Metabolism                                      1.531026e-04
+Pterine Biosynthesis                                               7.925920e-01
+Tyrosine Metabolism                                                3.233664e-01
+Beta-Alanine Metabolism                                            8.528350e-01
+Phenylalanine and Tyrosine Metabolism                              4.332175e-01
+Ammonia Recycling                                                  8.252435e-01
+Nucleotide Sugars Metabolism                                       2.936465e-01
+Inositol Metabolism                                                8.149637e-01
+Catecholamine Biosynthesis                                         8.806576e-02
+Cysteine Metabolism                                                1.605239e-01
+Glutathione Metabolism                                             1.917081e-02
+Propanoate Metabolism                                              9.071835e-01
+Vitamin B6 Metabolism                                              1.000000e+00
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  1.000000e+00
+Arginine and Proline Metabolism                                    1.186532e-03
+Taurine and Hypotaurine Metabolism                                 1.331686e-01
+Steroid Biosynthesis                                               9.344820e-01
+Porphyrin Metabolism                                               8.958090e-01
+Phospholipid Biosynthesis                                          4.706199e-01
+Pantothenate and CoA Biosynthesis                                  9.895191e-02
+Caffeine Metabolism                                                3.547347e-01
+Selenoamino Acid Metabolism                                        7.804313e-01
+Oxidation of Branched Chain Fatty Acids                            4.651983e-02
+Pentose Phosphate Pathway                                          1.661291e-02
+Valine, Leucine and Isoleucine Degradation                         6.300930e-01
+Methionine Metabolism                                              1.192567e-03
+Sphingolipid Metabolism                                            6.482263e-01
+Bile Acid Biosynthesis                                             9.758786e-01
+D-Arginine and D-Ornithine Metabolism                              4.580253e-01
+Lysine Degradation                                                 8.149637e-01
+Glycerolipid Metabolism                                            1.473695e-01
+Glycolysis                                                         1.106960e-05
+Sulfate/Sulfite Metabolism                                         1.000000e+00
+Galactose Metabolism                                               3.365211e-01
+Histidine Metabolism                                               9.071835e-01
+Amino Sugar Metabolism                                             6.624721e-03
+Pyrimidine Metabolism                                              8.277956e-01
+Nicotinate and Nicotinamide Metabolism                             5.737080e-01
+Purine Metabolism                                                  9.176364e-01
+Fatty acid Metabolism                                              9.124044e-01
+Beta Oxidation of Very Long Chain Fatty Acids                      2.320195e-01
+Folate Metabolism                                                  1.000000e+00
+Fatty Acid Elongation In Mitochondria                              8.610446e-01
+Alanine Metabolism                                                 2.320195e-01
+Citric Acid Cycle                                                  1.623321e-04
+Starch and Sucrose Metabolism                                      8.027205e-02
+Urea Cycle                                                         4.380037e-04
+Pyruvate Metabolism                                                1.041065e-02
+Tryptophan Metabolism                                              2.067514e-01
+Fructose and Mannose Degradation                                   8.027205e-02
+Ubiquinone Biosynthesis                                            6.733686e-01
+Biotin Metabolism                                                  1.000000e+00
+Aspartate Metabolism                                               2.907678e-01
+Androgen and Estrogen Metabolism                                   8.441499e-01
+Riboflavin Metabolism                                              1.000000e+00
+Ketone Body Metabolism                                             1.521409e-01
+Glutamate Metabolism                                               1.199657e-04
+Butyrate Metabolism                                                2.730884e-01
+Retinol Metabolism                                                 5.737080e-01
+Arachidonic Acid Metabolism                                        9.785802e-01
+Thiamine Metabolism                                                3.938620e-01
+Betaine Metabolism                                                 3.141407e-01
+Glycerol Phosphate Shuttle                                         1.148131e-01
+Phenylacetate Metabolism                                           3.938620e-01
+Glucose-Alanine Cycle                                              1.521409e-01
+Gluconeogenesis                                                    3.179489e-06
+Malate-Aspartate Shuttle                                           4.268242e-01
+Steroidogenesis                                                    1.000000e+00
+Mitochondrial Electron Transport Chain                             1.596631e-02
+Lactose Synthesis                                                  2.730884e-01
+Spermidine and Spermine Biosynthesis                               1.312317e-02
+Ethanol Degradation                                                6.543825e-01
+Phytanic Acid Peroxisomal Oxidation                                4.651983e-02
+Threonine and 2-Oxobutanoate Degradation                           6.733686e-01
+Homocysteine Degradation                                           8.047570e-02
+Fatty Acid Biosynthesis                                            8.610446e-01
+Lactose Degradation                                                1.000000e+00
+Pyruvaldehyde Degradation                                          1.356947e-02
+Inositol Phosphate Metabolism                                      7.395952e-01
+Phosphatidylinositol Phosphate Metabolism                          1.000000e+00
+Vitamin K Metabolism                                               1.000000e+00
+Carnitine Synthesis                                                2.671049e-02
+Transfer of Acetyl Groups into Mitochondria                        2.671049e-02
+Trehalose Degradation                                              1.000000e+00
+Degradation of Superoxides                                         1.000000e+00
+Plasmalogen Synthesis                                              4.140184e-01
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  7.804313e-01
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 7.804313e-01
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   7.925920e-01
+Warburg Effect                                                     5.369063e-08
+Methylhistidine Metabolism                                         1.990342e-01
+Thyroid hormone synthesis                                          1.000000e+00
+Phosphatidylcholine Biosynthesis                                   1.716136e-01
+De Novo Triacylglycerol Biosynthesis                               8.047570e-02
+Cardiolipin Biosynthesis                                           1.148131e-01
+Phosphatidylethanolamine Biosynthesis                              1.000000e+00
+Androstenedione Metabolism                                         7.395952e-01
+Estrone Metabolism                                                 3.747469e-01
+                                                                        q.value
+Glycine and Serine Metabolism                                      2.651424e-03
+Pterine Biosynthesis                                               1.000000e+00
+Tyrosine Metabolism                                                7.202251e-01
+Beta-Alanine Metabolism                                            1.000000e+00
+Phenylalanine and Tyrosine Metabolism                              8.164484e-01
+Ammonia Recycling                                                  1.000000e+00
+Nucleotide Sugars Metabolism                                       6.851752e-01
+Inositol Metabolism                                                1.000000e+00
+Catecholamine Biosynthesis                                         3.452178e-01
+Cysteine Metabolism                                                4.767072e-01
+Glutathione Metabolism                                             1.174212e-01
+Propanoate Metabolism                                              1.000000e+00
+Vitamin B6 Metabolism                                              1.000000e+00
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  1.000000e+00
+Arginine and Proline Metabolism                                    1.298573e-02
+Taurine and Hypotaurine Metabolism                                 4.500179e-01
+Steroid Biosynthesis                                               1.000000e+00
+Porphyrin Metabolism                                               1.000000e+00
+Phospholipid Biosynthesis                                          8.540880e-01
+Pantothenate and CoA Biosynthesis                                  3.729726e-01
+Caffeine Metabolism                                                7.557392e-01
+Selenoamino Acid Metabolism                                        1.000000e+00
+Oxidation of Branched Chain Fatty Acids                            2.279472e-01
+Pentose Phosphate Pathway                                          1.085377e-01
+Valine, Leucine and Isoleucine Degradation                         1.000000e+00
+Methionine Metabolism                                              1.298573e-02
+Sphingolipid Metabolism                                            1.000000e+00
+Bile Acid Biosynthesis                                             1.000000e+00
+D-Arginine and D-Ornithine Metabolism                              8.469146e-01
+Lysine Degradation                                                 1.000000e+00
+Glycerolipid Metabolism                                            4.659315e-01
+Glycolysis                                                         3.616068e-04
+Sulfate/Sulfite Metabolism                                         1.000000e+00
+Galactose Metabolism                                               7.328682e-01
+Histidine Metabolism                                               1.000000e+00
+Amino Sugar Metabolism                                             6.492227e-02
+Pyrimidine Metabolism                                              1.000000e+00
+Nicotinate and Nicotinamide Metabolism                             1.000000e+00
+Purine Metabolism                                                  1.000000e+00
+Fatty acid Metabolism                                              1.000000e+00
+Beta Oxidation of Very Long Chain Fatty Acids                      5.983661e-01
+Folate Metabolism                                                  1.000000e+00
+Fatty Acid Elongation In Mitochondria                              1.000000e+00
+Alanine Metabolism                                                 5.983661e-01
+Citric Acid Cycle                                                  2.651424e-03
+Starch and Sucrose Metabolism                                      3.286091e-01
+Urea Cycle                                                         6.132051e-03
+Pyruvate Metabolism                                                9.274941e-02
+Tryptophan Metabolism                                              5.628232e-01
+Fructose and Mannose Degradation                                   3.286091e-01
+Ubiquinone Biosynthesis                                            1.000000e+00
+Biotin Metabolism                                                  1.000000e+00
+Aspartate Metabolism                                               6.851752e-01
+Androgen and Estrogen Metabolism                                   1.000000e+00
+Riboflavin Metabolism                                              1.000000e+00
+Ketone Body Metabolism                                             4.659315e-01
+Glutamate Metabolism                                               2.651424e-03
+Butyrate Metabolism                                                6.690667e-01
+Retinol Metabolism                                                 1.000000e+00
+Arachidonic Acid Metabolism                                        1.000000e+00
+Thiamine Metabolism                                                7.877239e-01
+Betaine Metabolism                                                 7.159485e-01
+Glycerol Phosphate Shuttle                                         4.018459e-01
+Phenylacetate Metabolism                                           7.877239e-01
+Glucose-Alanine Cycle                                              4.659315e-01
+Gluconeogenesis                                                    1.557950e-04
+Malate-Aspartate Shuttle                                           8.164484e-01
+Steroidogenesis                                                    1.000000e+00
+Mitochondrial Electron Transport Chain                             1.085377e-01
+Lactose Synthesis                                                  6.690667e-01
+Spermidine and Spermine Biosynthesis                               1.022929e-01
+Ethanol Degradation                                                1.000000e+00
+Phytanic Acid Peroxisomal Oxidation                                2.279472e-01
+Threonine and 2-Oxobutanoate Degradation                           1.000000e+00
+Homocysteine Degradation                                           3.286091e-01
+Fatty Acid Biosynthesis                                            1.000000e+00
+Lactose Degradation                                                1.000000e+00
+Pyruvaldehyde Degradation                                          1.022929e-01
+Inositol Phosphate Metabolism                                      1.000000e+00
+Phosphatidylinositol Phosphate Metabolism                          1.000000e+00
+Vitamin K Metabolism                                               1.000000e+00
+Carnitine Synthesis                                                1.454238e-01
+Transfer of Acetyl Groups into Mitochondria                        1.454238e-01
+Trehalose Degradation                                              1.000000e+00
+Degradation of Superoxides                                         1.000000e+00
+Plasmalogen Synthesis                                              8.114761e-01
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  1.000000e+00
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 1.000000e+00
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   1.000000e+00
+Warburg Effect                                                     5.261681e-06
+Methylhistidine Metabolism                                         5.572958e-01
+Thyroid hormone synthesis                                          1.000000e+00
+Phosphatidylcholine Biosynthesis                                   4.946510e-01
+De Novo Triacylglycerol Biosynthesis                               3.286091e-01
+Cardiolipin Biosynthesis                                           4.018459e-01
+Phosphatidylethanolamine Biosynthesis                              1.000000e+00
+Androstenedione Metabolism                                         1.000000e+00
+Estrone Metabolism                                                 7.813871e-01
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ora_bino")
+> ### * ora_bino
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ora_bino
+> ### Title: Over-representation analysis with binomial resampling adjustment
+> ### Aliases: ora_bino
+> ### Keywords: MSEA ORA simulation
+> 
+> ### ** Examples
+> 
+> M   <- list(set1 = c("A","B","C"), set2 = c("C","D","E"))
+> DET <- c("A","B","C","D")
+> SIG <- c("A","C")
+> 
+> # Binomial-adjusted ORA (shrink method)
+> ora_bino(SIG, DET, M, method = "shrink", nsim = 200)
+$`Range of p-values for each pathway (95% confidence interval)`
+     lower p-value p-value(median) upper p-value
+set1           0.3             0.3           0.3
+set2           0.3             0.3           1.0
+
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ora_det")
+> ### * ora_det
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ora_det
+> ### Title: Over-representation analysis using detected metabolites only
+> ### Aliases: ora_det
+> ### Keywords: msea
+> 
+> ### ** Examples
+> 
+> # Example: Simple ORA with metabolomics data
+> data(MetaboAnalyst)
+> 
+> # Use pre-computed significant and detected metabolites
+> SIG <- MetaboAnalyst$fasting$data$SIG
+> DET <- MetaboAnalyst$fasting$data$DET
+> M <- MetaboAnalyst$fasting$pathway
+> 
+> # Perform ORA using detected metabolites only
+> B <- ora_det(SIG, DET, M)
+> B$`Result of MSEA(ORA)`
+                                                                      p.value
+Glycine and Serine Metabolism                                      0.23502421
+Pterine Biosynthesis                                               0.93208660
+Tyrosine Metabolism                                                0.54015190
+Beta-Alanine Metabolism                                            0.99811349
+Phenylalanine and Tyrosine Metabolism                              0.77823189
+Ammonia Recycling                                                  0.99717024
+Nucleotide Sugars Metabolism                                       0.83470411
+Inositol Metabolism                                                0.85231212
+Catecholamine Biosynthesis                                         0.28364059
+Cysteine Metabolism                                                0.66156400
+Glutathione Metabolism                                             0.63110253
+Propanoate Metabolism                                              0.99576326
+Vitamin B6 Metabolism                                              1.00000000
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  1.00000000
+Arginine and Proline Metabolism                                    0.49487641
+Taurine and Hypotaurine Metabolism                                 0.50458140
+Steroid Biosynthesis                                               0.93208660
+Porphyrin Metabolism                                               0.89976418
+Phospholipid Biosynthesis                                          0.77823189
+Pantothenate and CoA Biosynthesis                                  0.48862301
+Caffeine Metabolism                                                0.61505181
+Selenoamino Acid Metabolism                                        0.93208660
+Oxidation of Branched Chain Fatty Acids                            0.30471081
+Pentose Phosphate Pathway                                          0.39194245
+Valine, Leucine and Isoleucine Degradation                         0.90384086
+Methionine Metabolism                                              0.44560886
+Sphingolipid Metabolism                                            0.87798913
+Bile Acid Biosynthesis                                             0.99576326
+D-Arginine and D-Ornithine Metabolism                              0.53236920
+Lysine Degradation                                                 0.97909684
+Glycerolipid Metabolism                                            0.78854602
+Glycolysis                                                         0.03830166
+Sulfate/Sulfite Metabolism                                         1.00000000
+Galactose Metabolism                                               0.58057912
+Histidine Metabolism                                               0.99963437
+Amino Sugar Metabolism                                             0.45939872
+Pyrimidine Metabolism                                              0.99410716
+Nicotinate and Nicotinamide Metabolism                             0.98801430
+Purine Metabolism                                                  0.99980002
+Fatty acid Metabolism                                              0.96898607
+Beta Oxidation of Very Long Chain Fatty Acids                      0.77823189
+Folate Metabolism                                                  1.00000000
+Fatty Acid Elongation In Mitochondria                              0.93208660
+Alanine Metabolism                                                 0.70582967
+Citric Acid Cycle                                                  0.09016273
+Starch and Sucrose Metabolism                                      0.55751482
+Urea Cycle                                                         0.20797395
+Pyruvate Metabolism                                                0.32590046
+Tryptophan Metabolism                                              0.81559515
+Fructose and Mannose Degradation                                   0.55751482
+Ubiquinone Biosynthesis                                            0.78276598
+Biotin Metabolism                                                  1.00000000
+Aspartate Metabolism                                               0.94557499
+Androgen and Estrogen Metabolism                                   0.93208660
+Riboflavin Metabolism                                              1.00000000
+Ketone Body Metabolism                                             0.61505181
+Glutamate Metabolism                                               0.27848093
+Butyrate Metabolism                                                0.83470411
+Retinol Metabolism                                                 0.70582967
+Arachidonic Acid Metabolism                                        0.85231212
+Thiamine Metabolism                                                0.85231212
+Betaine Metabolism                                                 0.95319538
+Glycerol Phosphate Shuttle                                         0.61505181
+Phenylacetate Metabolism                                           0.78276598
+Glucose-Alanine Cycle                                              0.70582967
+Gluconeogenesis                                                    0.02571587
+Malate-Aspartate Shuttle                                           0.85231212
+Steroidogenesis                                                    1.00000000
+Mitochondrial Electron Transport Chain                             0.39161438
+Lactose Synthesis                                                  0.70582967
+Spermidine and Spermine Biosynthesis                               0.22058076
+Ethanol Degradation                                                0.95406585
+Phytanic Acid Peroxisomal Oxidation                                0.55751482
+Threonine and 2-Oxobutanoate Degradation                           0.95406585
+Homocysteine Degradation                                           0.23508962
+Fatty Acid Biosynthesis                                            0.89976418
+Lactose Degradation                                                1.00000000
+Pyruvaldehyde Degradation                                          0.09444121
+Inositol Phosphate Metabolism                                      0.78276598
+Phosphatidylinositol Phosphate Metabolism                          1.00000000
+Vitamin K Metabolism                                               1.00000000
+Carnitine Synthesis                                                0.47696610
+Transfer of Acetyl Groups into Mitochondria                        0.47696610
+Trehalose Degradation                                              1.00000000
+Degradation of Superoxides                                         1.00000000
+Plasmalogen Synthesis                                              0.83470411
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  0.97909684
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 0.96898607
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   0.95406585
+Warburg Effect                                                     0.02049084
+Methylhistidine Metabolism                                         0.78276598
+Thyroid hormone synthesis                                          1.00000000
+Phosphatidylcholine Biosynthesis                                   0.77823189
+De Novo Triacylglycerol Biosynthesis                               0.50458140
+Cardiolipin Biosynthesis                                           0.61505181
+Phosphatidylethanolamine Biosynthesis                              1.00000000
+Androstenedione Metabolism                                         0.89976418
+Estrone Metabolism                                                 0.83470411
+                                                                   q.value
+Glycine and Serine Metabolism                                            1
+Pterine Biosynthesis                                                     1
+Tyrosine Metabolism                                                      1
+Beta-Alanine Metabolism                                                  1
+Phenylalanine and Tyrosine Metabolism                                    1
+Ammonia Recycling                                                        1
+Nucleotide Sugars Metabolism                                             1
+Inositol Metabolism                                                      1
+Catecholamine Biosynthesis                                               1
+Cysteine Metabolism                                                      1
+Glutathione Metabolism                                                   1
+Propanoate Metabolism                                                    1
+Vitamin B6 Metabolism                                                    1
+Alpha Linolenic Acid and Linoleic Acid Metabolism                        1
+Arginine and Proline Metabolism                                          1
+Taurine and Hypotaurine Metabolism                                       1
+Steroid Biosynthesis                                                     1
+Porphyrin Metabolism                                                     1
+Phospholipid Biosynthesis                                                1
+Pantothenate and CoA Biosynthesis                                        1
+Caffeine Metabolism                                                      1
+Selenoamino Acid Metabolism                                              1
+Oxidation of Branched Chain Fatty Acids                                  1
+Pentose Phosphate Pathway                                                1
+Valine, Leucine and Isoleucine Degradation                               1
+Methionine Metabolism                                                    1
+Sphingolipid Metabolism                                                  1
+Bile Acid Biosynthesis                                                   1
+D-Arginine and D-Ornithine Metabolism                                    1
+Lysine Degradation                                                       1
+Glycerolipid Metabolism                                                  1
+Glycolysis                                                               1
+Sulfate/Sulfite Metabolism                                               1
+Galactose Metabolism                                                     1
+Histidine Metabolism                                                     1
+Amino Sugar Metabolism                                                   1
+Pyrimidine Metabolism                                                    1
+Nicotinate and Nicotinamide Metabolism                                   1
+Purine Metabolism                                                        1
+Fatty acid Metabolism                                                    1
+Beta Oxidation of Very Long Chain Fatty Acids                            1
+Folate Metabolism                                                        1
+Fatty Acid Elongation In Mitochondria                                    1
+Alanine Metabolism                                                       1
+Citric Acid Cycle                                                        1
+Starch and Sucrose Metabolism                                            1
+Urea Cycle                                                               1
+Pyruvate Metabolism                                                      1
+Tryptophan Metabolism                                                    1
+Fructose and Mannose Degradation                                         1
+Ubiquinone Biosynthesis                                                  1
+Biotin Metabolism                                                        1
+Aspartate Metabolism                                                     1
+Androgen and Estrogen Metabolism                                         1
+Riboflavin Metabolism                                                    1
+Ketone Body Metabolism                                                   1
+Glutamate Metabolism                                                     1
+Butyrate Metabolism                                                      1
+Retinol Metabolism                                                       1
+Arachidonic Acid Metabolism                                              1
+Thiamine Metabolism                                                      1
+Betaine Metabolism                                                       1
+Glycerol Phosphate Shuttle                                               1
+Phenylacetate Metabolism                                                 1
+Glucose-Alanine Cycle                                                    1
+Gluconeogenesis                                                          1
+Malate-Aspartate Shuttle                                                 1
+Steroidogenesis                                                          1
+Mitochondrial Electron Transport Chain                                   1
+Lactose Synthesis                                                        1
+Spermidine and Spermine Biosynthesis                                     1
+Ethanol Degradation                                                      1
+Phytanic Acid Peroxisomal Oxidation                                      1
+Threonine and 2-Oxobutanoate Degradation                                 1
+Homocysteine Degradation                                                 1
+Fatty Acid Biosynthesis                                                  1
+Lactose Degradation                                                      1
+Pyruvaldehyde Degradation                                                1
+Inositol Phosphate Metabolism                                            1
+Phosphatidylinositol Phosphate Metabolism                                1
+Vitamin K Metabolism                                                     1
+Carnitine Synthesis                                                      1
+Transfer of Acetyl Groups into Mitochondria                              1
+Trehalose Degradation                                                    1
+Degradation of Superoxides                                               1
+Plasmalogen Synthesis                                                    1
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids        1
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids       1
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids         1
+Warburg Effect                                                           1
+Methylhistidine Metabolism                                               1
+Thyroid hormone synthesis                                                1
+Phosphatidylcholine Biosynthesis                                         1
+De Novo Triacylglycerol Biosynthesis                                     1
+Cardiolipin Biosynthesis                                                 1
+Phosphatidylethanolamine Biosynthesis                                    1
+Androstenedione Metabolism                                               1
+Estrone Metabolism                                                       1
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ora_est")
+> ### * ora_est
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ora_est
+> ### Title: Over-representation analysis adjusting for undetected
+> ###   metabolites
+> ### Aliases: ora_est
+> ### Keywords: msea
+> 
+> ### ** Examples
+> 
+> # Example using metabolomics data
+> data(MetaboAnalyst)
+> 
+> # Use pre-computed significant and detected metabolites
+> SIG <- MetaboAnalyst$fasting$data$SIG
+> DET <- MetaboAnalyst$fasting$data$DET
+> M <- MetaboAnalyst$fasting$pathway
+> 
+> # Run adjusted ORA (e.g., shrinkage method)
+> B <- ora_est(SIG, DET, M, method = "shrink", lambda = 5)
+[1] 1
+     [,1] [,2]
+[1,]   23  327
+[2,]   36  724
+[1] 2
+     [,1] [,2]
+[1,]    6  344
+[2,]   22  738
+[1] 3
+     [,1] [,2]
+[1,]   23  327
+[2,]   47  713
+[1] 4
+     [,1] [,2]
+[1,]    3  347
+[2,]   31  729
+[1] 5
+     [,1] [,2]
+[1,]    7  343
+[2,]   20  740
+[1] 6
+     [,1] [,2]
+[1,]    3  347
+[2,]   28  732
+[1] 7
+     [,1] [,2]
+[1,]    5  345
+[2,]   15  745
+[1] 8
+     [,1] [,2]
+[1,]    7  343
+[2,]   23  737
+[1] 9
+     [,1] [,2]
+[1,]    9  341
+[2,]   11  749
+[1] 10
+     [,1] [,2]
+[1,]    8  342
+[2,]   18  742
+[1] 11
+     [,1] [,2]
+[1,]    6  344
+[2,]   14  746
+[1] 12
+     [,1] [,2]
+[1,]    5  345
+[2,]   37  723
+[1] 13
+     [,1] [,2]
+[1,]    3  347
+[2,]   16  744
+[1] 14
+     [,1] [,2]
+[1,]    5  345
+[2,]   12  748
+[1] 15
+     [,1] [,2]
+[1,]   17  333
+[2,]   35  725
+[1] 16
+     [,1] [,2]
+[1,]    5  345
+[2,]    7  753
+[1] 17
+     [,1] [,2]
+[1,]   10  340
+[2,]   38  722
+[1] 18
+     [,1] [,2]
+[1,]    9  341
+[2,]   31  729
+[1] 19
+     [,1] [,2]
+[1,]    8  342
+[2,]   21  739
+[1] 20
+     [,1] [,2]
+[1,]    8  342
+[2,]   13  747
+[1] 21
+     [,1] [,2]
+[1,]    8  342
+[2,]   15  745
+[1] 22
+     [,1] [,2]
+[1,]    5  345
+[2,]   22  738
+[1] 23
+     [,1] [,2]
+[1,]   11  339
+[2,]   15  745
+[1] 24
+     [,1] [,2]
+[1,]   11  339
+[2,]   18  742
+[1] 25
+     [,1] [,2]
+[1,]   13  337
+[2,]   46  714
+[1] 26
+     [,1] [,2]
+[1,]   14  336
+[2,]   28  732
+[1] 27
+     [,1] [,2]
+[1,]    9  341
+[2,]   31  729
+[1] 28
+     [,1] [,2]
+[1,]    8  342
+[2,]   57  703
+[1] 29
+     [,1] [,2]
+[1,]    4  346
+[2,]    7  753
+[1] 30
+     [,1] [,2]
+[1,]    4  346
+[2,]   26  734
+[1] 31
+     [,1] [,2]
+[1,]    7  343
+[2,]   18  742
+[1] 32
+     [,1] [,2]
+[1,]   13  337
+[2,]   10  750
+[1] 33
+     [,1] [,2]
+[1,]    4  346
+[2,]   18  742
+[1] 34
+     [,1] [,2]
+[1,]   12  338
+[2,]   26  734
+[1] 35
+     [,1] [,2]
+[1,]    3  347
+[2,]   39  721
+[1] 36
+     [,1] [,2]
+[1,]   12  338
+[2,]   21  739
+[1] 37
+     [,1] [,2]
+[1,]    8  342
+[2,]   49  711
+[1] 38
+     [,1] [,2]
+[1,]    5  345
+[2,]   30  730
+[1] 39
+     [,1] [,2]
+[1,]    7  343
+[2,]   66  694
+[1] 40
+     [,1] [,2]
+[1,]    7  343
+[2,]   36  724
+[1] 41
+     [,1] [,2]
+[1,]    4  346
+[2,]   13  747
+[1] 42
+     [,1] [,2]
+[1,]    2  348
+[2,]   27  733
+[1] 43
+     [,1] [,2]
+[1,]    7  343
+[2,]   28  732
+[1] 44
+     [,1] [,2]
+[1,]    5  345
+[2,]   12  748
+[1] 45
+     [,1] [,2]
+[1,]   15  335
+[2,]   17  743
+[1] 46
+     [,1] [,2]
+[1,]   10  340
+[2,]   21  739
+[1] 47
+     [,1] [,2]
+[1,]   12  338
+[2,]   16  744
+[1] 48
+     [,1] [,2]
+[1,]   18  332
+[2,]   29  731
+[1] 49
+     [,1] [,2]
+[1,]   15  335
+[2,]   44  716
+[1] 50
+     [,1] [,2]
+[1,]   10  340
+[2,]   21  739
+[1] 51
+     [,1] [,2]
+[1,]    6  344
+[2,]   14  746
+[1] 52
+     [,1] [,2]
+[1,]    1  349
+[2,]    7  753
+[1] 53
+     [,1] [,2]
+[1,]    7  343
+[2,]   28  732
+[1] 54
+     [,1] [,2]
+[1,]    7  343
+[2,]   26  734
+[1] 55
+     [,1] [,2]
+[1,]    3  347
+[2,]   17  743
+[1] 56
+     [,1] [,2]
+[1,]    4  346
+[2,]    9  751
+[1] 57
+     [,1] [,2]
+[1,]   18  332
+[2,]   30  730
+[1] 58
+     [,1] [,2]
+[1,]    5  345
+[2,]   14  746
+[1] 59
+     [,1] [,2]
+[1,]   10  340
+[2,]   25  735
+[1] 60
+     [,1] [,2]
+[1,]   17  333
+[2,]   50  710
+[1] 61
+     [,1] [,2]
+[1,]    2  348
+[2,]    7  753
+[1] 62
+     [,1] [,2]
+[1,]    4  346
+[2,]   17  743
+[1] 63
+     [,1] [,2]
+[1,]    4  346
+[2,]    7  753
+[1] 64
+     [,1] [,2]
+[1,]    2  348
+[2,]    7  753
+[1] 65
+     [,1] [,2]
+[1,]    4  346
+[2,]    9  751
+[1] 66
+     [,1] [,2]
+[1,]   18  332
+[2,]   15  745
+[1] 67
+     [,1] [,2]
+[1,]    2  348
+[2,]    8  752
+[1] 68
+     [,1] [,2]
+[1,]    7  343
+[2,]   36  724
+[1] 69
+     [,1] [,2]
+[1,]    7  343
+[2,]   12  748
+[1] 70
+     [,1] [,2]
+[1,]    6  344
+[2,]   13  747
+[1] 71
+     [,1] [,2]
+[1,]    8  342
+[2,]   10  750
+[1] 72
+     [,1] [,2]
+[1,]    3  347
+[2,]   16  744
+[1] 73
+     [,1] [,2]
+[1,]    9  341
+[2,]   17  743
+[1] 74
+     [,1] [,2]
+[1,]    3  347
+[2,]   17  743
+[1] 75
+     [,1] [,2]
+[1,]    5  345
+[2,]    4  756
+[1] 76
+     [,1] [,2]
+[1,]    8  342
+[2,]   27  733
+[1] 77
+     [,1] [,2]
+[1,]    2  348
+[2,]    7  753
+[1] 78
+     [,1] [,2]
+[1,]    6  344
+[2,]    4  756
+[1] 79
+     [,1] [,2]
+[1,]    7  343
+[2,]   17  743
+[1] 80
+     [,1] [,2]
+[1,]    3  347
+[2,]   14  746
+[1] 81
+     [,1] [,2]
+[1,]    2  348
+[2,]   11  749
+[1] 82
+     [,1] [,2]
+[1,]    8  342
+[2,]   14  746
+[1] 83
+     [,1] [,2]
+[1,]    8  342
+[2,]   14  746
+[1] 84
+     [,1] [,2]
+[1,]    2  348
+[2,]    9  751
+[1] 85
+     [,1] [,2]
+[1,]    3  347
+[2,]    8  752
+[1] 86
+     [,1] [,2]
+[1,]    6  344
+[2,]   20  740
+[1] 87
+     [,1] [,2]
+[1,]    4  346
+[2,]   23  737
+[1] 88
+     [,1] [,2]
+[1,]    4  346
+[2,]   23  737
+[1] 89
+     [,1] [,2]
+[1,]    5  345
+[2,]   23  737
+[1] 90
+     [,1] [,2]
+[1,]   28  322
+[2,]   29  731
+[1] 91
+     [,1] [,2]
+[1,]    1  349
+[2,]    3  757
+[1] 92
+     [,1] [,2]
+[1,]    2  348
+[2,]   11  749
+[1] 93
+     [,1] [,2]
+[1,]    4  346
+[2,]   10  750
+[1] 94
+     [,1] [,2]
+[1,]    3  347
+[2,]    6  754
+[1] 95
+     [,1] [,2]
+[1,]    4  346
+[2,]    7  753
+[1] 96
+     [,1] [,2]
+[1,]    1  349
+[2,]   11  749
+[1] 97
+     [,1] [,2]
+[1,]    5  345
+[2,]   19  741
+[1] 98
+     [,1] [,2]
+[1,]    6  344
+[2,]   18  742
+> B$`Result of MSEA (ORA with adjustment)`
+                                                                       p.value
+Glycine and Serine Metabolism                                      0.131612869
+Pterine Biosynthesis                                               0.919234677
+Tyrosine Metabolism                                                0.449154818
+Beta-Alanine Metabolism                                            0.999704959
+Phenylalanine and Tyrosine Metabolism                              0.798500373
+Ammonia Recycling                                                  0.999202145
+Nucleotide Sugars Metabolism                                       0.807671968
+Inositol Metabolism                                                0.883131639
+Catecholamine Biosynthesis                                         0.143793886
+Cysteine Metabolism                                                0.607868793
+Glutathione Metabolism                                             0.642301576
+Propanoate Metabolism                                              0.999347343
+Vitamin B6 Metabolism                                              0.966660206
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  0.664323697
+Arginine and Proline Metabolism                                    0.480528424
+Taurine and Hypotaurine Metabolism                                 0.317090062
+Steroid Biosynthesis                                               0.967246490
+Porphyrin Metabolism                                               0.926721828
+Phospholipid Biosynthesis                                          0.742501153
+Pantothenate and CoA Biosynthesis                                  0.330424618
+Caffeine Metabolism                                                0.444778222
+Selenoamino Acid Metabolism                                        0.959756734
+Oxidation of Branched Chain Fatty Acids                            0.162371617
+Pentose Phosphate Pathway                                          0.286107775
+Valine, Leucine and Isoleucine Degradation                         0.964060853
+Methionine Metabolism                                              0.457756968
+Sphingolipid Metabolism                                            0.926721828
+Bile Acid Biosynthesis                                             0.999944916
+D-Arginine and D-Ornithine Metabolism                              0.475509498
+Lysine Degradation                                                 0.994646621
+Glycerolipid Metabolism                                            0.720281447
+Glycolysis                                                         0.010669623
+Sulfate/Sulfite Metabolism                                         0.951040384
+Galactose Metabolism                                               0.559905829
+Histidine Metabolism                                               0.999980859
+Amino Sugar Metabolism                                             0.332187198
+Pyrimidine Metabolism                                              0.999479184
+Nicotinate and Nicotinamide Metabolism                             0.995069685
+Purine Metabolism                                                  0.999998969
+Fatty acid Metabolism                                              0.993665730
+Beta Oxidation of Very Long Chain Fatty Acids                      0.835767967
+Folate Metabolism                                                  0.999787826
+Fatty Acid Elongation In Mitochondria                              0.958165545
+Alanine Metabolism                                                 0.664323697
+Citric Acid Cycle                                                  0.047349575
+Starch and Sucrose Metabolism                                      0.533656925
+Urea Cycle                                                         0.136297915
+Pyruvate Metabolism                                                0.193666660
+Tryptophan Metabolism                                              0.882835918
+Fructose and Mannose Degradation                                   0.533656925
+Ubiquinone Biosynthesis                                            0.642301576
+Biotin Metabolism                                                  0.952263384
+Aspartate Metabolism                                               0.958165545
+Androgen and Estrogen Metabolism                                   0.935871567
+Riboflavin Metabolism                                              0.975080626
+Ketone Body Metabolism                                             0.627051588
+Glutamate Metabolism                                               0.224067690
+Butyrate Metabolism                                                0.766329370
+Retinol Metabolism                                                 0.709522233
+Arachidonic Acid Metabolism                                        0.897057747
+Thiamine Metabolism                                                0.830972528
+Betaine Metabolism                                                 0.936815355
+Glycerol Phosphate Shuttle                                         0.475509498
+Phenylacetate Metabolism                                           0.830972528
+Glucose-Alanine Cycle                                              0.627051588
+Gluconeogenesis                                                    0.004534974
+Malate-Aspartate Shuttle                                           0.874225773
+Steroidogenesis                                                    0.993665730
+Mitochondrial Electron Transport Chain                             0.389472830
+Lactose Synthesis                                                  0.584942878
+Spermidine and Spermine Biosynthesis                               0.174238263
+Ethanol Degradation                                                0.966660206
+Phytanic Acid Peroxisomal Oxidation                                0.438984688
+Threonine and 2-Oxobutanoate Degradation                           0.975080626
+Homocysteine Degradation                                           0.117756209
+Fatty Acid Biosynthesis                                            0.907701374
+Lactose Degradation                                                0.830972528
+Pyruvaldehyde Degradation                                          0.058733617
+Inositol Phosphate Metabolism                                      0.674255889
+Phosphatidylinositol Phosphate Metabolism                          0.941217839
+Vitamin K Metabolism                                               0.950180105
+Carnitine Synthesis                                                0.387440713
+Transfer of Acetyl Groups into Mitochondria                        0.387440713
+Trehalose Degradation                                              0.907080763
+Degradation of Superoxides                                         0.726378318
+Plasmalogen Synthesis                                              0.877671202
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  0.987329861
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 0.987329861
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   0.968565877
+Warburg Effect                                                     0.003357536
+Methylhistidine Metabolism                                         0.780780821
+Thyroid hormone synthesis                                          0.950180105
+Phosphatidylcholine Biosynthesis                                   0.691425421
+De Novo Triacylglycerol Biosynthesis                               0.578001360
+Cardiolipin Biosynthesis                                           0.475509498
+Phosphatidylethanolamine Biosynthesis                              0.989674926
+Androstenedione Metabolism                                         0.918242907
+Estrone Metabolism                                                 0.819557506
+                                                                     q.value
+Glycine and Serine Metabolism                                      0.9999990
+Pterine Biosynthesis                                               0.9999990
+Tyrosine Metabolism                                                0.9999990
+Beta-Alanine Metabolism                                            0.9999990
+Phenylalanine and Tyrosine Metabolism                              0.9999990
+Ammonia Recycling                                                  0.9999990
+Nucleotide Sugars Metabolism                                       0.9999990
+Inositol Metabolism                                                0.9999990
+Catecholamine Biosynthesis                                         0.9999990
+Cysteine Metabolism                                                0.9999990
+Glutathione Metabolism                                             0.9999990
+Propanoate Metabolism                                              0.9999990
+Vitamin B6 Metabolism                                              0.9999990
+Alpha Linolenic Acid and Linoleic Acid Metabolism                  0.9999990
+Arginine and Proline Metabolism                                    0.9999990
+Taurine and Hypotaurine Metabolism                                 0.9999990
+Steroid Biosynthesis                                               0.9999990
+Porphyrin Metabolism                                               0.9999990
+Phospholipid Biosynthesis                                          0.9999990
+Pantothenate and CoA Biosynthesis                                  0.9999990
+Caffeine Metabolism                                                0.9999990
+Selenoamino Acid Metabolism                                        0.9999990
+Oxidation of Branched Chain Fatty Acids                            0.9999990
+Pentose Phosphate Pathway                                          0.9999990
+Valine, Leucine and Isoleucine Degradation                         0.9999990
+Methionine Metabolism                                              0.9999990
+Sphingolipid Metabolism                                            0.9999990
+Bile Acid Biosynthesis                                             0.9999990
+D-Arginine and D-Ornithine Metabolism                              0.9999990
+Lysine Degradation                                                 0.9999990
+Glycerolipid Metabolism                                            0.9999990
+Glycolysis                                                         0.3485410
+Sulfate/Sulfite Metabolism                                         0.9999990
+Galactose Metabolism                                               0.9999990
+Histidine Metabolism                                               0.9999990
+Amino Sugar Metabolism                                             0.9999990
+Pyrimidine Metabolism                                              0.9999990
+Nicotinate and Nicotinamide Metabolism                             0.9999990
+Purine Metabolism                                                  0.9999990
+Fatty acid Metabolism                                              0.9999990
+Beta Oxidation of Very Long Chain Fatty Acids                      0.9999990
+Folate Metabolism                                                  0.9999990
+Fatty Acid Elongation In Mitochondria                              0.9999990
+Alanine Metabolism                                                 0.9999990
+Citric Acid Cycle                                                  0.9999990
+Starch and Sucrose Metabolism                                      0.9999990
+Urea Cycle                                                         0.9999990
+Pyruvate Metabolism                                                0.9999990
+Tryptophan Metabolism                                              0.9999990
+Fructose and Mannose Degradation                                   0.9999990
+Ubiquinone Biosynthesis                                            0.9999990
+Biotin Metabolism                                                  0.9999990
+Aspartate Metabolism                                               0.9999990
+Androgen and Estrogen Metabolism                                   0.9999990
+Riboflavin Metabolism                                              0.9999990
+Ketone Body Metabolism                                             0.9999990
+Glutamate Metabolism                                               0.9999990
+Butyrate Metabolism                                                0.9999990
+Retinol Metabolism                                                 0.9999990
+Arachidonic Acid Metabolism                                        0.9999990
+Thiamine Metabolism                                                0.9999990
+Betaine Metabolism                                                 0.9999990
+Glycerol Phosphate Shuttle                                         0.9999990
+Phenylacetate Metabolism                                           0.9999990
+Glucose-Alanine Cycle                                              0.9999990
+Gluconeogenesis                                                    0.2222137
+Malate-Aspartate Shuttle                                           0.9999990
+Steroidogenesis                                                    0.9999990
+Mitochondrial Electron Transport Chain                             0.9999990
+Lactose Synthesis                                                  0.9999990
+Spermidine and Spermine Biosynthesis                               0.9999990
+Ethanol Degradation                                                0.9999990
+Phytanic Acid Peroxisomal Oxidation                                0.9999990
+Threonine and 2-Oxobutanoate Degradation                           0.9999990
+Homocysteine Degradation                                           0.9999990
+Fatty Acid Biosynthesis                                            0.9999990
+Lactose Degradation                                                0.9999990
+Pyruvaldehyde Degradation                                          0.9999990
+Inositol Phosphate Metabolism                                      0.9999990
+Phosphatidylinositol Phosphate Metabolism                          0.9999990
+Vitamin K Metabolism                                               0.9999990
+Carnitine Synthesis                                                0.9999990
+Transfer of Acetyl Groups into Mitochondria                        0.9999990
+Trehalose Degradation                                              0.9999990
+Degradation of Superoxides                                         0.9999990
+Plasmalogen Synthesis                                              0.9999990
+Mitochondrial Beta-Oxidation of Short Chain Saturated Fatty Acids  0.9999990
+Mitochondrial Beta-Oxidation of Medium Chain Saturated Fatty Acids 0.9999990
+Mitochondrial Beta-Oxidation of Long Chain Saturated Fatty Acids   0.9999990
+Warburg Effect                                                     0.2222137
+Methylhistidine Metabolism                                         0.9999990
+Thyroid hormone synthesis                                          0.9999990
+Phosphatidylcholine Biosynthesis                                   0.9999990
+De Novo Triacylglycerol Biosynthesis                               0.9999990
+Cardiolipin Biosynthesis                                           0.9999990
+Phosphatidylethanolamine Biosynthesis                              0.9999990
+Androstenedione Metabolism                                         0.9999990
+Estrone Metabolism                                                 0.9999990
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("ora_full")
+> ### * ora_full
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: ora_full
+> ### Title: Over-representation analysis with full enumeration of undetected
+> ###   metabolite patterns
+> ### Aliases: ora_full
+> ### Keywords: MSEA ORA enrichment
+> 
+> ### ** Examples
+> 
+> ## Example: small set
+> M <- list(
++   set1 = c("A", "B", "C"),
++   set2 = c("C", "D", "E", "F"),
++   set3 = c("G", "H")
++ )
+> DET <- c("A", "B", "C", "D", "E")  # Detected
+> SIG <- c("A", "C")                # Significant
+> 
+> ora_full(SIG, DET, M)$`Range of p-values`
+     lower p-value p-value(median) upper p-value
+set1     0.2857143       0.2857143     0.2857143
+set2     0.5000000       0.7142857     0.9285714
+set3     0.1071429       0.6428571     1.0000000
+> 
+> 
+> 
+> 
+> cleanEx()
+> nameEx("setlabel")
+> ### * setlabel
+> 
+> flush(stderr()); flush(stdout())
+> 
+> ### Name: setlabel
+> ### Title: Binary labeling of metabolite IDs across metabolite sets
+> ### Aliases: setlabel
+> ### Keywords: MSEA ORA labeling
+> 
+> ### ** Examples
+> 
+> # Example usage
+> M <- list(
++   set1 = c("A", "B", "C"),
++   set2 = c("C", "D"),
++   set3 = c("E", "F")
++ )
+> 
+> M_ID <- c("A", "C", "E", "G")
+> 
+> setlabel(M_ID, M)
+     set1 set2 set3
+[1,]    1    0    0
+[2,]    1    1    0
+[3,]    0    0    1
+[4,]    0    0    0
+> 
+> 
+> 
+> 
+> ### * <FOOTER>
+> ###
+> cleanEx()
+> options(digits = 7L)
+> base::cat("Time elapsed: ", proc.time() - base::get("ptime", pos = 'CheckExEnv'),"\n")
+Time elapsed:  3.73 0.045 3.667 0 0 
+> grDevices::dev.off()
+null device 
+          1 
+> ###
+> ### Local variables: ***
+> ### mode: outline-minor ***
+> ### outline-regexp: "\\(> \\)?### [*]+" ***
+> ### End: ***
+> quit('no')

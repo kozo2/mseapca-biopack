@@ -1,0 +1,17 @@
+MetaboAnalyst           Example metabolomics data extracted from
+                        MetaboAnalyst (fasting study)
+msea_ora                Wrapper for several over-representation
+                        analysis (ORA) flavours
+msea_ora_range          Wrapper function for Over-Representation
+                        Analysis with p-value range estimation
+ora_all                 ORA using all metabolites in the pathway
+ora_bino                Over-representation analysis with binomial
+                        resampling adjustment
+ora_det                 Over-representation analysis using detected
+                        metabolites only
+ora_est                 Over-representation analysis adjusting for
+                        undetected metabolites
+ora_full                Over-representation analysis with full
+                        enumeration of undetected metabolite patterns
+setlabel                Binary labeling of metabolite IDs across
+                        metabolite sets
