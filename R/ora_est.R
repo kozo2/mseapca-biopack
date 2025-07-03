@@ -1,8 +1,8 @@
 # ora_est : over-representation analysis that adjusts for undetected metabolites
 #           via naive, weighted, or shrink point estimates.
 
-source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
-source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/ora_det.R")
+#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
+#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/ora_det.R")
 
 ora_est <- function(SIG, DET, M, method="naive", lambda = 5) {
 

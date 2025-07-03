@@ -1,6 +1,6 @@
 # ora_det : Over-representation analysis (ORA) using detected metabolites only.
 
-source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
+#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
 
 ora_det <- function (SIG, DET, M)
 {

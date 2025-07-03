@@ -1,6 +1,6 @@
 # ora_bino : ORA that adjusts for undetected metabolites using binomial resampling.
 
-source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/ora_det.R")
+#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/ora_det.R")
 
 ora_bino <- function(SIG, DET, M, method="naive", probs = c(0.025, 0.975), nsim = 1000, lambda = 5) {
 

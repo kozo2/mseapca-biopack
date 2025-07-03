@@ -1,7 +1,7 @@
 # ora_all: over-representation analysis under the same conditions as MetaboAnalyst,
 # when no reference metabolome is specified.
 
-source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
+#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/setlabel.R")
 
 ora_all <- function (SIG, M)
 {
