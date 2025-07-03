@@ -1,7 +1,30 @@
-# ora_bino : ORA that adjusts for undetected metabolites using binomial resampling.
-
-#source("C:/Users/yamamoto/Documents/R/msea/mseapca/dev/mseapca/R/ora_det.R")
-
+#' Over-representation analysis with binomial resampling adjustment
+#'
+#' Performs ORA while adjusting for undetected metabolites by binomial resampling.
+#'
+#' @param SIG Character vector of significant metabolites.
+#' @param DET Character vector of detected metabolites (background).
+#' @param M Named list of metabolite sets.
+#' @param method \code{"naive"}, \code{"weighted"}, or \code{"shrink"}.
+#' @param probs Quantiles for the confidence interval (default 95\%).
+#' @param nsim Number of binomial simulations (default 1000).
+#' @param lambda Shrinkage constant used when \code{method = "shrink"}.
+#'
+#' @return A list containing one matrix.
+#' Rows = metabolite sets; columns = lower, median, and upper p-values.
+#'
+#' @author Hiroyuki Yamamoto
+#'
+#' @examples
+#' M   <- list(set1 = c("A","B","C"), set2 = c("C","D","E"))
+#' DET <- c("A","B","C","D")
+#' SIG <- c("A","C")
+#'
+#' # Binomial-adjusted ORA (shrink method)
+#' ora_bino(SIG, DET, M, method = "shrink", nsim = 200)
+#'
+#' @keywords MSEA ORA simulation
+#' @export
 ora_bino <- function(SIG, DET, M, method="naive", probs = c(0.025, 0.975), nsim = 1000, lambda = 5) {
 
   # Set a random seed for reproducibility
